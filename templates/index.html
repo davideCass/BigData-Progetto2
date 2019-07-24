@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Raimbow SS Statistics</title>
+        <script src='static/Chart.js'></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<style>
+ body {
+	 background-size: 1900px 1000px;
+	 background-repeat: no-repeat;
+	 background-attachment: fixed;
+ }
+ table {
+	font-family: verdana,arial,sans-serif;
+	font-size:12px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+ th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+}
+ td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+}
+ button {
+	 font-weight: bold;
+	 position: absolute;
+	 height: 50px;
+	 width: 170px;
+	 top:20px;
+	 left:900px;
+	 position:absolute;
+		}
+ h1 {
+	 top:110px;
+	 left:410px;
+	 position:absolute;
+	 font-size: 1.7em;
+		}
+ caption {
+	 font-size: 24px;
+	 color: white;
+	 font-weight: bold;
+	 padding: 20px
+		}
+</style>
+
+    </head>
+
+    <body background="static/background.png">
+        <center>
+            <div style="width:1000px;height:800px;top:0px;position:absolute;">
+                <canvas id="chart"></canvas>
+            </div>
+            
+			<div style="width:800px;height:800px;top:110px;position:absolute;">
+                <canvas id="chart2"></canvas>
+            </div>
+			
+	    	<div style="width:500px;height:500px;top:480px;left:650px;position:absolute;">
+				<table id="tableStream1"></table> </div>
+				
+			<div style="width:500px;height:500px;top:0px;left:1200px;position:absolute;">
+                <table id="tableStream2"></table></div>
+					
+			<div style="width:500px;height:500px;top:110px;left:1200px;position:absolute;">
+                <table id="tableBatch1"></table></div>
+					
+			<div style="width:500px;height:500px;top:450px;left:1200px;position:absolute;">
+                <table id="tableBatch2"></table></div>
+			<div>
+                <button id="button"></button>
+            </div>
+        </center>
+
+        <script>
+				
+			
+		// creazione del Chart
+			
+           var ctx = document.getElementById("chart");
+
+           var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [{% for item in labels %}
+                              {{item}},
+                             {% endfor %}],
+                    datasets: [{
+                        label: 'KillRatio',
+                        data: [{% for item in values %}
+                                  {{item}},
+                                {% endfor %}],
+                        backgroundColor: 'rgba(255,0,0, 0.8)',
+                        borderColor: 'rgba(255,0,0, 1)',
+						fontColor: 'white',
+						color: 'white',
+                        borderWidth: 1.5, },
+						{
+			 			label: 'RoundRatio',
+                        data: [{% for item in values %}
+                                  {{item}},
+                                {% endfor %}],
+                        backgroundColor:  'rgba(27, 0, 202, 0.8)',
+                        borderColor: 'rgba(27, 0, 202, 1)',
+                        borderWidth: 1.5
+                    }]
+                },
+                options: {
+					title: {
+						display: true,
+						text: "Operator's Ratio",
+						fontSize: 24,
+						fontColor: 'white',
+						padding: 20
+					},
+					legend: {
+						labels: {
+							fontColor: "white"
+						}},
+                    scales: {
+						xAxes : [{
+							categoryPercentage: 0.8,
+							barPercentage: 1,
+							gridLines: { 
+									color: "rgba(255,255,255,0.3)"},
+							ticks:{
+									 beginAtZero:true,
+								 	 fontColor: "white"
+								 	}
+								 }],
+                        yAxes: [{ gridLines: { color: "rgba(255,255,255,0.5)", zeroLineColor: "white" },
+                            ticks: {
+                                beginAtZero:true,
+								fontColor: "white"
+                            }
+                        }]
+                    }
+                }
+           });
+
+			var ctx2 = document.getElementById("chart2");
+
+           var chart2 = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: [{% for item in labels2 %}
+                              {{item}},
+                             {% endfor %}],
+                    datasets: [{
+                        label: 'KillRatio',
+                        data: [{% for item in values2 %}
+                                  {{item}},
+                                {% endfor %}],
+                        backgroundColor: 'rgba(255,0,0, 0.8)',
+                        borderColor: 'rgba(255,0,0, 1)',
+						fontColor: 'white',
+						color: 'white',
+                        borderWidth: 1.5, },
+						{
+			 			label: 'RoundRatio',
+                        data: [{% for item in values2 %}
+                                  {{item}},
+                                {% endfor %}],
+                        backgroundColor:  'rgba(27, 0, 202, 0.8)',
+                        borderColor: 'rgba(27, 0, 202, 1)',
+                        borderWidth: 1.5
+                    },
+							  {
+			 			label: 'RoundPlayed',
+                        data: [{% for item in values2 %}
+                                  {{item}},
+                                {% endfor %}],
+                        backgroundColor:  'rgba(46, 204, 113, 0.8)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1.5
+                    }]
+                },
+                options: {
+					title: {
+						display: true,
+						text: "Top 3 Operators of day",
+						fontSize: 24,
+						fontColor: 'white',
+						padding: 20
+					},
+					legend: {
+						labels: {
+							fontColor: "white"
+						}},
+                    scales: {
+						xAxes : [{gridLines: { color: "rgba(255,255,255,0.3)" },
+								 ticks: {
+									 fontColor: "white",
+									 fontSize: 15
+								 }
+								 }],
+                        yAxes: [{ gridLines: { color: "rgba(255,255,255,0.5)", zeroLineColor: "white" },
+                            ticks: {
+                                beginAtZero:true,
+								fontColor: "white"
+                            }
+                        }]
+                    }
+                }
+           });
+
+// funzione che ordina la tabella
+			
+  function sortTable() {
+	var table, rows, switching, i, x, y, shouldSwitch;
+	table = document.getElementById("tableStream1");
+  	switching = true;
+  	/* Make a loop that will continue until
+  	no switching has been done: */
+  	while (switching) {
+    		// Start by saying: no switching is done:
+    		switching = false;
+    		rows = table.rows;
+    		/* Loop through all table rows (except the
+    		first, which contains table headers): */
+    		  for (i = 1; i < (rows.length - 1); i++) {
+      		  // Start by saying there should be no switching:
+      		  shouldSwitch = false;
+      		  /* Get the two elements you want to compare,
+      		  one from current row and one from the next: */
+		  gameMode1 = rows[i].getElementsByTagName("TD")[0]
+		  gameMode2 = rows[i + 1].getElementsByTagName("TD")[0]
+      		  x = rows[i].getElementsByTagName("TD")[2];
+      		  y = rows[i + 1].getElementsByTagName("TD")[2];
+      		  // Check if the two rows should switch place:
+      		  if ((x && y != undefined) && parseInt(x.innerHTML) < parseInt(y.innerHTML)) {
+        		// If so, mark as a switch and break the loop:
+        		shouldSwitch = true;
+        		break;
+      		  }
+    		}
+    		if (shouldSwitch) {
+      		/* If a switch has been marked, make the switch
+      		and mark that a switch has been done: */
+      		  rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      		  switching = true;
+    		}
+  	}
+}
+
+
+	// creazione tabelle
+	// tabella GameMode
+	
+	var tableStream1 = document.getElementById("tableStream1");	
+    var thead = document.createElement("thead");
+    var tbody = document.createElement("tbody");
+    var headRow = document.createElement("tr");
+    ["GameMode","Role","Tot. Rounds Won", "Map with more Wins","Victories on Map"].forEach(function(el) {
+      		var th=document.createElement("th");
+      		th.appendChild(document.createTextNode(el));
+      		headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    tableStream1.appendChild(thead);   
+			
+	var caption = document.createElement("caption");
+	var text = document.createTextNode("For each GameMode, defenders' and attackers' victories and Map where they win the most");
+	caption.appendChild(text)
+	tableStream1.appendChild(caption)
+
+	// tabella mappe
+
+	var tableStream2 = document.getElementById("tableStream2");
+
+	var caption2 = document.createElement("caption");
+	caption2.setAttribute("id", "caption2")
+	var text2 = document.createTextNode("Best Defender and Attacker for each Map");
+	caption2.appendChild(text2) 
+	tableStream2.appendChild(caption2)
+
+    var thead2 = document.createElement("thead");
+    var tbody2 = document.createElement("tbody");
+    var headRow2 = document.createElement("tr");
+    	["Map", "Role", "Operator","killRatio", "RoundRatio"].forEach(function(el) {
+      		var th=document.createElement("th");
+      		th.appendChild(document.createTextNode(el));
+      		headRow2.appendChild(th);
+    });
+    thead2.appendChild(headRow2);
+    tableStream2.appendChild(thead2);   
+
+// tabella divisions
+	var tableBatch1 = document.getElementById("tableBatch1");
+
+	var caption1 = document.createElement("caption");
+	caption1.setAttribute("id", "caption1")
+	var text1 = document.createTextNode("Top 5 Divisions");
+	caption1.appendChild(text1) 
+	tableBatch1.appendChild(caption1)
+
+    var thead1 = document.createElement("thead");
+    var tbody1 = document.createElement("tbody");
+    var headRow1 = document.createElement("tr");
+    	["Division","Points","Players' avgLevel", "Time Played min:sec"].forEach(function(el) {
+      		var th=document.createElement("th");
+      		th.appendChild(document.createTextNode(el));
+      		headRow1.appendChild(th);
+    });
+    thead1.appendChild(headRow1);
+    tableBatch1.appendChild(thead1);   
+			
+	tableBatch1.style.display = "none";
+
+// tabella platform
+
+	var tableBatch2 = document.getElementById("tableBatch2");
+
+	var caption3 = document.createElement("caption");
+	caption1.setAttribute("id", "caption3")
+	var text3 = document.createTextNode("Platform Ordered by Game Time");
+	caption3.appendChild(text3) 
+	tableBatch2.appendChild(caption3)
+
+    var thead3 = document.createElement("thead");
+    var tbody3 = document.createElement("tbody");
+    var headRow3 = document.createElement("tr");
+    	["Platform","Most Played Map","Tot. Rounds Played", "Tot. Time Played min:sec"].forEach(function(el) {
+      		var th=document.createElement("th");
+      		th.appendChild(document.createTextNode(el));
+      		headRow3.appendChild(th);
+    });
+    thead3.appendChild(headRow3);
+    tableBatch2.appendChild(thead3);   
+			
+	tableBatch2.style.display = "none";
+
+
+	var src_LabelsChart = [];
+	var src_Data1Chart = [];
+	var src_Data2Chart = [];
+	var src_labelsChart2 = [];
+	var src_dataChart2 = [];
+	var src_gameMode = [];
+	var rowsGameMode = [];
+	var src_divisions = [];
+	var src_maps = []
+	var src_platform = [];
+	var src_currentDate = ''
+	var changeDate = false; 
+	 
+	// funzione ripetuta ogni 2 secondi
+			
+	setInterval(function(){
+		$.getJSON('/refreshData', {
+                }, function(data) {
+                    src_LabelsChart = data.sLabel;
+                    src_Data1Chart = data.sData1;
+		    		src_Data2Chart = data.sData2;
+		    		src_gameMode = data.gameMode;
+					src_divisions = data.divisions;
+					src_labelsChart2 = data.labels2;
+					src_dataChart2 = data.values2
+					src_maps = data.maps;
+					src_platform = data.platform;
+					if(src_currentDate != data.currentDate)
+						changeDate = true;
+					src_currentDate = data.currentDate;
+                });
+                chart.data.labels = src_LabelsChart;
+                chart.data.datasets[0].data = src_Data1Chart;
+				chart.data.datasets[1].data = src_Data2Chart;
+                chart.update();
+		        chart2.data.labels = src_labelsChart2;
+                chart2.data.datasets[0].data = src_dataChart2[0];
+				chart2.data.datasets[1].data = src_dataChart2[1];
+				chart2.data.datasets[2].data = src_dataChart2[2];
+                chart2.update();
+
+	// divisioni come tr
+		
+		tableStream1 = document.getElementById("tableStream1");
+		tableStream2 = document.getElementById("tableStream2");
+		tableBatch1 = document.getElementById("tableBatch1");
+		tableBatch2 = document.getElementById("tableBatch2");
+
+
+		// riempimento tabella GameMode
+		var i = 0		// evita di riscrivere gameMode 2 volte
+
+		// tableStream1
+		
+		src_gameMode.forEach(function(el) {
+      		var tr = document.createElement("tr");
+
+      		for (var j = 0; j< el.length; j++) { 
+		    if(document.getElementById(el[0] + el[1]) == undefined && (j != 0 || i == 0)) {
+        		var td = document.createElement("td");
+				td.setAttribute("id", el[0] + el[1] + j);
+			   	if(j == 0) {
+					td.rowSpan = "2";
+					i = i + 1; }
+        		td.appendChild(document.createTextNode(el[j]))
+        		tr.appendChild(td);
+      		}
+		   else if(j != 0) {
+			document.getElementById(el[0] + el[1] + j).innerHTML = el[j]
+			
+			}
+			}
+		tr.setAttribute("id", el[0] + el[1]);
+      		tbody.appendChild(tr);  
+    		});
+		i = 0;
+    	tableStream1.appendChild(tbody);
+	sortTable();
+		
+		
+	
+		// tableStream2
+		var h = 0
+		src_maps.forEach(function(el) {
+      		var tr = document.createElement("tr");
+
+      		for (var j = 0; j< el.length; j++) { 
+		    if(document.getElementById(el[0] + el[1]) == undefined && (j != 0 || h == 0)) {
+        		var td = document.createElement("td");
+				td.setAttribute("id", el[0] + el[1] + j);
+			   	if(j == 0) {
+					td.rowSpan = "2";
+					h = h + 1; }
+        		td.appendChild(document.createTextNode(el[j]))
+        		tr.appendChild(td);
+      		}
+		   else if(j != 0) {
+			document.getElementById(el[0] + el[1] + j).innerHTML = el[j]
+			
+			}
+			}
+		tr.setAttribute("id", el[0] + el[1]);
+      		tbody2.appendChild(tr);  
+    		});
+		h = 0;
+    	tableStream2.appendChild(tbody2);
+		
+		// tableBatch1
+		
+		var k = 0
+		if(src_divisions != []) {
+		src_divisions.forEach(function(el) {
+      		var tr = document.createElement("tr");
+      		for (var j = 0; j< el.length; j++) { 
+		    	if(document.getElementById(k) == undefined) {
+        			var td = document.createElement("td");
+					td.setAttribute("id", k.toString() + j.toString());
+			   	/*if(j == 0) {
+					td.rowSpan = "2";}*/
+        			td.appendChild(document.createTextNode(el[j]))
+        			tr.appendChild(td);
+      			}
+		    	else  
+					document.getElementById(k.toString() + j.toString()).innerHTML = el[j];			
+			}
+		tr.setAttribute("id", k);
+		k = k + 1 
+      		tbody1.appendChild(tr);  
+    		});
+			k = 0;
+    	tableBatch1.appendChild(tbody1);
+
+		}
+		
+		// tableBatch2
+		
+		if(src_platform != []) {
+		src_platform.forEach(function(el) {
+      		var tr = document.createElement("tr");
+      		for (var j = 0; j< el.length; j++) { 
+		    	if(document.getElementById(el[0]) == undefined) {
+        			var td = document.createElement("td");
+					td.setAttribute("id", el[0] + k.toString() + j.toString());
+			   	/*if(j == 0) {
+					td.rowSpan = "2";}*/
+        			td.appendChild(document.createTextNode(el[j]))
+        			tr.appendChild(td);
+      			}
+		    	else  
+					document.getElementById(el[0] + k.toString() + j.toString())
+						.innerHTML = el[j];			
+			}
+		tr.setAttribute("id", el[0]);
+      		tbody3.appendChild(tr);  
+    		});
+    	tableBatch2.appendChild(tbody3);
+
+		}
+	},2000);
+
+
+	// creazione dello switch button
+			
+	var button = document.getElementById("button");
+		button.innerHTML = "Click to see Batch Jobs Result";
+			
+	var chartStream = document.getElementById("chart")
+	chartBatch = document.getElementById("chart2")
+	chartBatch.style.display = "none"
+	tableStream1 = document.getElementById("tableStream1")
+	tableStream2 = document.getElementById("tableStream2")
+	tableBatch1 = document.getElementById("tableBatch1")
+			
+		button.addEventListener("click", function(){
+			
+			if(button.innerHTML.includes("Batch")) {
+				chartStream.style.display = "none"
+				chartBatch.style.display = "block";
+				tableStream1.style.display = "none";
+				tableStream2.style.display = "none";
+				tableBatch1.style.display = "block";
+				tableBatch2.style.display = "block";
+				button.innerHTML = "Click to see Streaming Jobs Result";
+				}
+			else if(button.innerHTML.includes("Streaming")) {
+				chartStream.style.display = "block";
+				chartBatch.style.display = "none";
+				tableStream1.style.display = "block";
+				tableStream2.style.display = "block";
+				tableBatch1.style.display = "none";
+				tableBatch2.style.display = "none";
+				button.innerHTML = "Click to see Batch Jobs Result";
+			}
+			});
+
+        </script>
+
+    </body>
+</html>
